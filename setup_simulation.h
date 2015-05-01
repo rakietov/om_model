@@ -22,12 +22,12 @@ public:
 	void create_in_files();
 	void run_simulation();
 	void get_energies();
-   void get_gaps();
+    void get_gaps();
 	void get_entanglement_spectra( const char* which_state );
 	void get_structure_factors();
 
 
-	Tmps_state get_MPS_from_curr_folder( int );
+	Tmps_state get_MPS_from_ith_folder( int i, const char* which_state);
 
 
 	std::string loop_return_string( int i0 );

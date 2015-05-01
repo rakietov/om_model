@@ -316,58 +316,97 @@ void setup_simulation::get_structure_factors()
 
 }
 
+// ----------------------------------------------------------------------------------------
+Tmps_state setup_simulation::get_MPS_from_ith_folder( int i, const char* which_state)
+{
+	std::string curr_dir =  "./"+loop_return_string(i)+"/";	
+    chdir( curr_dir.c_str() );
+    
+    std::string str1("results.task1.out.");
+	str1.append(which_state);
+	str1.append(".chkp");
+		
+	chdir ( str1.c_str() );
+	sleep(0.2);
+    
+	for(int i0 = 0; i0 < loop_return_L( i ); ++i0)
+	{
+		std::string s1("~/h5dump mps");
+		std::stringstream ss1;
+		ss1 << i0;
+		s1.append(ss1.str());
+		s1.append(".h5 > mps");
+		s1.append(ss1.str());
+		s1.append(".txt");
+	//	system(s1.c_str());
+	//	system( "pwd" );
+	//	std::cout<<"executing: "<<s1.c_str()<<std::endl;
+	}
 
 
+	matrix_from_txt mft;
+	std::vector <Tmps_matrix> Vmps_matrix;
+	for(int i0 = 0; i0 < loop_return_L( i ); ++i0){
+		std::stringstream ss;	
+		ss << i0;
+		std::string s1("./mps");
+		std::string s2(ss.str());
+		std::string s3(".txt");
+       	//std::cout<< (s1+s2+s3).c_str()<<std::endl;
+		//system("pwd");
+		mft.load_file( (s1+s2+s3).c_str() );
+		Tmps_matrix M1;
+		M1.get_matrix( mft );	
+		Vmps_matrix.push_back(M1);
+	}
+
+	for(int i0 = 0; i0 < loop_return_L( i ); ++i0)
+	{
+		std::string s1("rm mps");
+		std::stringstream ss1;
+		ss1 << i0;
+		s1.append(ss1.str());
+		s1.append(".txt");
+//		system(s1.c_str());
+	}	
+	chdir ( ".." );
+	chdir( ".." );
+	
+	Tmps_state MPS1( Vmps_matrix );
+    return MPS1;
+}
+// ========================================================================================
 
 
+// ----------------------------------------------------------------------------------------
 void setup_simulation::get_entanglement_spectra( const char* which_state )
 {	
 	for( int i =0 ; i< number_of_points; ++i ){
 		std::fstream fs1;
-		std::string curr_dir =  "./"+loop_return_string(i)+"/";
+		//std::string curr_dir =  "./"+loop_return_string(i)+"/";
 
+		std::string str_dm("dm_spectr_state");
+		std::string str_en("ent_spectr_state");
+		str_dm.append(which_state);
+		str_en.append(which_state);
+		str_dm.append( loop_return_string(i) );
+		str_en.append( loop_return_string(i) );
+		str_dm.append(".dat");
+		str_en.append(".dat");
 
-		fs1.open("dm_spectr"+loop_return_string(i) +".dat", std::fstream::out);	
-		chdir( curr_dir.c_str() );		
-	
+		fs1.open(str_dm.c_str(), std::fstream::out);	
+		//chdir( curr_dir.c_str() );		
+	    /*
 		std::string str1("results.task1.out.");
 		str1.append(which_state);
 		str1.append(".chkp");
 		
 		chdir ( str1.c_str() );
-		//sleep(0.2);
+		sleep(0.2);*/
 		//decode .h5 files
-		
-		for(int i0 = 0; i0 < loop_return_L( i ); ++i0)
-		{
-			std::string s1("h5dump mps");
-			std::stringstream ss1;
-			ss1 << i0;
-			s1.append(ss1.str());
-			s1.append(".h5 > mps");
-			s1.append(ss1.str());
-			s1.append(".txt");
-			system(s1.c_str());
-		}
-		// load relevant MPS state
-
-		matrix_from_txt mft;
-		std::vector <Tmps_matrix> Vmps_matrix;
-		for(int i0 = 0; i0 < loop_return_L( i ); ++i0){
-			std::stringstream ss;	
-			ss << i0;
-			std::string s1("./mps");
-			std::string s2(ss.str());
-			std::string s3(".txt");
-			//cout<< (s1+s2+s3).c_str()<<endl;
-			mft.load_file( (s1+s2+s3).c_str() );
-			Tmps_matrix M1;
-			M1.get_matrix( mft );	
-			Vmps_matrix.push_back(M1);
-		}
-		Tmps_state MPS1( Vmps_matrix );
-
-		// calculate density matrix
+        
+        Tmps_state MPS1;
+        MPS1 = get_MPS_from_ith_folder( i, which_state);
 		Tmps_matrix reduced_dm;
 		reduced_dm = MPS1.calc_reduced_density_matrix( loop_return_L( i )/2 );
 	
@@ -385,6 +424,7 @@ void setup_simulation::get_entanglement_spectra( const char* which_state )
 		}
 		//std::cout << "Here is the matrix A:\n" << A << std::endl;
 		Eigen::SelfAdjointEigenSolver< Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> > eigensolver(A);
+		//std::cout<<"po diagonalizacji"<<std::endl;
 		//if (eigensolver.info() != Success) abort();
 		//std::cout << "The eigenvalues of A are:\n" << eigensolver.eigenvalues() << std::endl;
 		//std::cout << "Here's a matrix whose columns are eigenvectors of A \n"
@@ -394,24 +434,15 @@ void setup_simulation::get_entanglement_spectra( const char* which_state )
 		
 		fs1<< eigensolver.eigenvalues() << std::endl;
 
-		for(int i0 = 0; i0 < loop_return_L( i ); ++i0)
-		{
-			std::string s1("rm mps");
-			std::stringstream ss1;
-			ss1 << i0;
-			s1.append(ss1.str());
-			s1.append(".txt");
-			system(s1.c_str());
-		}
+
 	
 		//sleep(0.2);
-		chdir ( ".." );
-		chdir( ".." );
+
 		fs1.close();
 	
-		fs1.open("dm_spectr"+loop_return_string(i) +".dat", std::fstream::in);	
+		fs1.open(str_dm.c_str(), std::fstream::in);	
 		std::fstream fs2;
-		fs2.open("ent_spectr"+loop_return_string(i) +".dat", std::fstream::out);	
+		fs2.open(str_en.c_str(), std::fstream::out);	
 
 		std::vector<long double > eigV;
 
@@ -634,6 +665,7 @@ std::string setup_simulation::loop_return_string( int i0 ){
 
 
 }
+
 
 
 

@@ -50,7 +50,7 @@ long double Tmps_state::overlap_with( const Tmps_state& s1 )
 		Tmps_matrix B_dag;
 		B_dag = B.conjugate();
 
-		std::cout<<"Printing A"<<std::endl;
+/*		std::cout<<"Printing A"<<std::endl;
 		A.write_indices();
 		A.write_ith_m_data(0);
 		std::cout<<std::endl;
@@ -60,6 +60,7 @@ long double Tmps_state::overlap_with( const Tmps_state& s1 )
 		B_dag.write_ith_m_data(0);
 		std::cout<<std::endl;
 		B.write_ith_m_data(1);
+*/
 //		std::cout<<"Printing Res"<<std::endl;
 //		Res.write_indices();
 
@@ -148,12 +149,39 @@ void Tmps_state::act_with_Sz( int which_site )
 
 	(this->_data_[which_site]) = A;
 
-
 }
+// ========================================================================================
+
+
 // ----------------------------------------------------------------------------------------
+void Tmps_state::multiply_by_double( int which_site, long double doubl )
+{
+	Tmps_matrix A(this->_data_[which_site]);
+	
+	A.multiply_by_double( doubl, 0 );
+	A.multiply_by_double( doubl, 1 );
+
+	(this->_data_[which_site]) = A;
+	
+}
+// ========================================================================================
 
 
-
+// ----------------------------------------------------------------------------------------
+long double Tmps_state::calc_fermionic_parity( int first_site, int last_site )
+{
+    Tmps_state MPSleft = *this;
+    Tmps_state MPSright = *this;
+    
+    for(int i = first_site; i < last_site; ++i)
+    {  
+        MPSright.act_with_Sz( i );
+        MPSright.multiply_by_double( i, -2.0 );
+    }
+    std::cout<<MPSright.overlap_with(MPSright)<<std::endl;
+    return MPSleft.overlap_with( MPSright );
+}
+// ========================================================================================
 
 
 
