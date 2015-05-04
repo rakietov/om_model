@@ -8,7 +8,7 @@
 #include <thread>
 #include<time.h>
 #include <math.h> 
-#include </home/sierant/Eigen324/Eigen/Dense>
+#include </home/jumper/Eigen324/Eigen/Dense>
 
 
 
@@ -338,7 +338,7 @@ Tmps_state setup_simulation::get_MPS_from_ith_folder( int i, const char* which_s
 		s1.append(".h5 > mps");
 		s1.append(ss1.str());
 		s1.append(".txt");
-	//	system(s1.c_str());
+		system(s1.c_str());
 	//	system( "pwd" );
 	//	std::cout<<"executing: "<<s1.c_str()<<std::endl;
 	}
@@ -367,7 +367,7 @@ Tmps_state setup_simulation::get_MPS_from_ith_folder( int i, const char* which_s
 		ss1 << i0;
 		s1.append(ss1.str());
 		s1.append(".txt");
-//		system(s1.c_str());
+		system(s1.c_str());
 	}	
 	chdir ( ".." );
 	chdir( ".." );

@@ -69,7 +69,9 @@ void Tmps_matrix::set_size(int p, int l, int r){
 	
 	delete[] m_data;
 	//std::cout<<"m_data deleted"<<std::endl;
-	
+	phys_i = p;
+	left_i = l;
+	right_i= r;
 //	std::cout<<" p l r "<<p<<" "<<l<<" "<<r<<std::endl;
 	m_data = new std::vector<std::vector<long double> > [p];
 //	std::cout<<"set_size - m_data created"<<std::endl;	
@@ -92,6 +94,31 @@ void Tmps_matrix::set_size(int p, int l, int r){
 	//std::cout<<"size set"<<std::endl;
 }
 
+void Tmps_matrix::set_ith_m_data( int ph,  std::vector < std::vector<long double> > mat)
+{
+    if( ph < 0 || ph > phys_i)
+    {
+        std::cout<<"ERROR in set_ith_m_data"<<std::endl;
+    }
+    if((m_data+ph)->size() != mat.size())
+    {
+        std::cout<<"ERROR in set_ith_m_data"<<std::endl;    
+    }
+    if(((m_data+ph)->begin())->size() != (mat.begin())->size())
+    {
+        std::cout<<"ERROR in set_ith_m_data"<<std::endl;    
+    }
+    for(int i1 = 0; i1 < (m_data+ph)->size(); ++i1)
+    {
+		auto it0 = (m_data+ph)->begin() + i1;
+		for(int i2 = 0; i2 < it0->size(); ++i2){
+			auto it1 = it0->begin();
+			*(it1+i2) = mat[i1][i2];
+		}
+	}
+    
+}
+
 void Tmps_matrix::write_indices(){
 	std::cout<< "left_i = " << left_i<<std::endl;
 	std::cout<< "right_i = " << right_i<<std::endl;
@@ -109,6 +136,7 @@ void Tmps_matrix::write_ith_m_data(int i){
 	std::cout<<std::endl;	
 	}
 }
+
 
 
 void Tmps_matrix::set_1matrix(int p, int l, int r)
@@ -307,7 +335,43 @@ Tmps_matrix& Tmps_matrix::sum_phys_i(){
 
 	*this = m_res;
 	return *this;
+
 }
+
+Tmps_matrix& Tmps_matrix::block_add( const Tmps_matrix& m1, int where_l, int where_r )
+{
+    if(this->phys_i != m1.phys_i)
+    {
+        std::cout<<"ERROR non mathing phys_i in block_add"<<std::endl;
+    }
+	Tmps_matrix m_res;
+	m_res.phys_i = this->phys_i;
+	m_res.left_i = where_l + m1.left_i;
+	m_res.right_i = where_r + m1.right_i;	
+
+	m_res.set_size(m_res.phys_i, m_res.left_i, m_res.right_i);	
+
+	for(int i = 0; i < this->phys_i; ++i){
+
+		for(int a1 = 0; a1 < this->left_i; ++a1){
+			for(int a2 = 0; a2 < this->right_i; ++a2){	
+				(*(m_res.m_data +i))[a1][a2] =  ((*(this->m_data + i))[a1][a2]);
+			}
+		}
+		
+		for(int a1 = where_l; a1 < where_l + m1.left_i; ++a1){
+			for(int a2 = where_r; a2 < where_r + m1.right_i; ++a2){	
+				(*(m_res.m_data +i))[a1][a2] =  ((*(m1.m_data + i))[a1-where_l][a2-where_r]);
+			}
+		}
+		
+	}
+
+	*this = m_res;
+	return *this;
+
+}
+
 
 /*
 long double Tmps_matrix::mps_overlap( const Tmps_matrix& M1, const Tmps_matrix& M2 ){

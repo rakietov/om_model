@@ -29,12 +29,26 @@ public:
 
 
 	long double overlap_with( const Tmps_state& s1);
+    void normalize();
 	long double calc_fermionic_parity( int first_site, int last_site );
 	Tmps_matrix calc_reduced_density_matrix( int bipart_l );
 
+    void write_entanglement_spectrum( int bipart_l );
+
+
     void multiply_by_double( int which_site, long double doubl );
 	void act_with_Sz( int which_site );
+    void act_with_Sx( int which_site );
+    void act_with_sigma_plus( int which_site );
+    void act_with_sigma_minus( int which_site );
+	void act_with_fermionic_parity( int first_site, int last_site );
+    void project_on_positive_fermionic_parity();
+    void project_on_negative_fermionic_parity();
 
+    void act_with_fermionic_cd( int which_site );
+    void act_with_fermionic_c( int which_site );
+
+    void add_mps_state( Tmps_state& s1 );    
 
 	void load_matrix( Tmps_matrix& M1);
 	void set_length( int L );

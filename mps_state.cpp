@@ -4,7 +4,10 @@
 #include <vector>
 #include "mps_matrix.h"
 #include "mps_state.h"
+#include <cmath>
+#include <algorithm>
 
+#include </home/jumper/Eigen324/Eigen/Dense>
 
 // ----------------------------------------------------------------------------------------
 Tmps_state::Tmps_state( std::vector<Tmps_matrix> Vmat ) : length( Vmat.size() ) 
@@ -140,6 +143,73 @@ Tmps_matrix Tmps_state::calc_reduced_density_matrix( int bipart_l )
 
 
 // ----------------------------------------------------------------------------------------
+void Tmps_state::add_mps_state( Tmps_state& s1 )    
+{
+    if( this->length != s1.length )
+    {
+        std::cout<<"ERROR non-matching length in add_mps_state"<<std::endl;
+    }    
+/*
+    std::cout<<"A matrix at 0:"<<std::endl;
+    (this->_data_[0]).write_indices();
+    (this->_data_[0]).write_ith_m_data( 0 );
+    (this->_data_[0]).write_ith_m_data( 1 );  
+    std::cout<<"B matrix at 0:"<<std::endl;
+    (s1._data_[0]).write_indices();
+    (s1._data_[0]).write_ith_m_data( 0 );
+    (s1._data_[0]).write_ith_m_data( 1 );   
+ */
+    (this->_data_[0]).block_add( s1._data_[0], 0, (this->_data_[0]).get_right_i() );
+/*
+    std::cout<<"After addition  at 0:"<<std::endl;
+    (this->_data_[0]).write_indices();
+    (this->_data_[0]).write_ith_m_data( 0 );
+    (this->_data_[0]).write_ith_m_data( 1 ); 
+  */  
+    for( int i = 1; i < this->length - 1; ++i)
+    {
+/*
+         std::cout<<"A matrix at "<<i<<std::endl;
+        (this->_data_[i]).write_indices();
+        (this->_data_[i]).write_ith_m_data( 0 );
+        (this->_data_[i]).write_ith_m_data( 1 );  
+        std::cout<<"B matrix at "<<i<<std::endl;
+        (s1._data_[i]).write_indices();
+        (s1._data_[i]).write_ith_m_data( 0 );
+        (s1._data_[i]).write_ith_m_data( 1 ); 
+*/
+        (this->_data_[i]).block_add( s1._data_[i], (this->_data_[i]).get_left_i(), (this->_data_[i]).get_right_i() );             
+/*
+    std::cout<<"After addition  at "<<i<<std::endl;
+    (this->_data_[i]).write_indices();
+    (this->_data_[i]).write_ith_m_data( 0 );
+    (this->_data_[i]).write_ith_m_data( 1 ); 
+*/       
+    } 
+/*
+    std::cout<<"A matrix at l-1:"<<std::endl;
+    (this->_data_[this->length-1]).write_indices();
+    (this->_data_[this->length-1]).write_ith_m_data( 0 );
+    (this->_data_[this->length-1]).write_ith_m_data( 1 );  
+    std::cout<<"B matrix at l-1:"<<std::endl;
+    (s1._data_[this->length-1]).write_indices();
+    (s1._data_[this->length-1]).write_ith_m_data( 0 );
+    (s1._data_[this->length-1]).write_ith_m_data( 1 );  
+*/
+    (this->_data_[this->length-1]).block_add( s1._data_[this->length-1], 
+                                    (this->_data_[this->length-1]).get_left_i(), 0 );
+/*
+    std::cout<<"After addition  at l-1:"<<std::endl;
+    (this->_data_[this->length-1]).write_indices();
+    (this->_data_[this->length-1]).write_ith_m_data( 0 );
+    (this->_data_[this->length-1]).write_ith_m_data( 1 ); 
+*/
+}
+// ========================================================================================
+
+
+
+// ----------------------------------------------------------------------------------------
 void Tmps_state::act_with_Sz( int which_site )
 {
 	Tmps_matrix A(this->_data_[which_site]);
@@ -149,6 +219,111 @@ void Tmps_state::act_with_Sz( int which_site )
 
 	(this->_data_[which_site]) = A;
 
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::act_with_Sx( int which_site )
+{
+	Tmps_matrix A(this->_data_[which_site]);
+	
+	A.multiply_by_double(  0.5, 0 );
+	A.multiply_by_double(  0.5, 1 );
+//    std::cout<<"A matrix\n phys 0\n";   
+//    A.write_ith_m_data( 0 );
+//    std::cout<<"phys 1\n";
+//    A.write_ith_m_data( 1 );   
+   
+    Tmps_matrix B( A );
+    B.set_ith_m_data(0, A.get_ith_m_data(1) );
+    B.set_ith_m_data(1, A.get_ith_m_data(0) );
+//    std::cout<<"B matrix\n phys 0\n";  
+//    B.write_ith_m_data( 0 );
+//        std::cout<<"phys 1\n";
+//    B.write_ith_m_data( 1 );   
+
+	(this->_data_[which_site]) = B;
+
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::act_with_sigma_plus( int which_site )
+{
+     
+	Tmps_matrix A(this->_data_[which_site]);
+	
+	A.multiply_by_double(  2.0, 0 );
+ /*
+    std::cout<<"A matrix\n phys 0\n";   
+    A.write_ith_m_data( 0 );
+    std::cout<<"phys 1\n";
+    A.write_ith_m_data( 1 );   
+    A.write_indices();
+*/
+    Tmps_matrix B;
+    B.set_size( A.get_phys_i(), A.get_left_i(), A.get_right_i() );
+    B.set_ith_m_data(1, A.get_ith_m_data(0) );
+/* 
+    std::cout<<"B matrix\n phys 0\n";  
+    B.write_ith_m_data( 0 );
+        std::cout<<"phys 1\n";
+    B.write_ith_m_data( 1 );  
+    B.write_indices(); 
+    std::cout<<"acted with sigma plus"<<std::endl;
+*/
+	(this->_data_[which_site]) = B;
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::act_with_sigma_minus( int which_site )
+{
+	Tmps_matrix A(this->_data_[which_site]);
+	
+	A.multiply_by_double(  2.0, 1 );
+/* 
+    std::cout<<"A matrix\n phys 0\n";   
+    A.write_ith_m_data( 0 );
+    std::cout<<"phys 1\n";
+    A.write_ith_m_data( 1 );   
+    A.write_indices();
+*/
+    Tmps_matrix B;
+    B.set_size( A.get_phys_i(), A.get_left_i(), A.get_right_i() );
+    B.set_ith_m_data(0, A.get_ith_m_data(1) );
+/* 
+    std::cout<<"B matrix\n phys 0\n";  
+    B.write_ith_m_data( 0 );
+        std::cout<<"phys 1\n";
+    B.write_ith_m_data( 1 );  
+    B.write_indices(); 
+    std::cout<<"acted with sigma plus"<<std::endl;
+*/
+	(this->_data_[which_site]) = B;
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::act_with_fermionic_c( int which_site )
+{
+//fermionic c_j operator defined as sigma_minus * fermionic_parity(0, j)
+    this->act_with_fermionic_parity( 0, which_site );
+    this->act_with_sigma_minus( which_site );
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::act_with_fermionic_cd( int which_site )
+{
+//fermionic c_j^dag operator defined as sigma_plus * fermionic_parity(0, j)
+    this->act_with_fermionic_parity( 0, which_site );
+    this->act_with_sigma_plus( which_site );
 }
 // ========================================================================================
 
@@ -173,24 +348,116 @@ long double Tmps_state::calc_fermionic_parity( int first_site, int last_site )
     Tmps_state MPSleft = *this;
     Tmps_state MPSright = *this;
     
+    MPSright.act_with_fermionic_parity( first_site, last_site );
+    
+    //std::cout<<MPSright.overlap_with(MPSright)<<std::endl;
+    return MPSleft.overlap_with( MPSright );
+}
+// ========================================================================================
+
+void Tmps_state::act_with_fermionic_parity( int first_site, int last_site )
+{
     for(int i = first_site; i < last_site; ++i)
     {  
-        MPSright.act_with_Sz( i );
-        MPSright.multiply_by_double( i, -2.0 );
+        this->act_with_Sz( i );
+        this->multiply_by_double( i, -2.0 );
+    }	
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::project_on_positive_fermionic_parity()
+{
+    Tmps_state A, B;
+    A = *this;
+    B = *this;
+    long double ferm_par = A.calc_fermionic_parity( 0, A.length );
+//    std::cout<<"Fermionic parity of A is "<<ferm_par<<std::endl;
+    if( fabs( ferm_par ) > 0.99 )
+    {
+        std::cout<<"Warning: projecting state with well defined fermionic parity"<<std::endl;
     }
-    std::cout<<MPSright.overlap_with(MPSright)<<std::endl;
-    return MPSleft.overlap_with( MPSright );
+
+    B.act_with_fermionic_parity( 0, B.length );
+    A.add_mps_state( B );
+    A.multiply_by_double( 0, 0.5 );
+
+    A.normalize();
+
+    *this = A;
+}
+// ========================================================================================
+
+
+// ----------------------------------------------------------------------------------------
+void Tmps_state::project_on_negative_fermionic_parity()
+{
+    Tmps_state A, B;
+    A = *this;
+    B = *this;
+    long double ferm_par = A.calc_fermionic_parity( 0, A.length );
+//    std::cout<<"Fermionic parity of A is "<<ferm_par<<std::endl;
+    if( fabs( ferm_par ) > 0.99 )
+    {
+        std::cout<<"Warning: projecting state with well defined fermionic parity"<<std::endl;
+    }
+
+    B.act_with_fermionic_parity( 0, B.length );
+    B.multiply_by_double( 0, -1.0);
+    A.add_mps_state( B );
+    A.multiply_by_double( 0, 0.5 );
+    
+    A.normalize();
+
+    *this = A;
 }
 // ========================================================================================
 
 
 
+// ----------------------------------------------------------------------------------------
+void Tmps_state::normalize()
+{
+    long double norm_sq = this->overlap_with(*this);
+    
+    this->multiply_by_double(0, 1/sqrt(norm_sq));
+}
+// ========================================================================================
 
+// ----------------------------------------------------------------------------------------
+void Tmps_state::write_entanglement_spectrum( int bipart_l )
+{
+	Tmps_matrix reduced_dm;
+	reduced_dm = this->calc_reduced_density_matrix( bipart_l );
+	
+	//reduced_dm.write_indices();
+	//reduced_dm.write_ith_m_data(0);
 
+	Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> A;
+	A.resize(reduced_dm.get_left_i(), reduced_dm.get_right_i());
+	for(int il = 0; il < reduced_dm.get_left_i(); ++il)
+	{
+		for(int ir = 0; ir < reduced_dm.get_right_i(); ++ir)
+		{
+		A(il, ir) = reduced_dm.get_m_data(0, il, ir);
+		}
+	}
+	//std::cout << "Here is the matrix A:\n" << A << std::endl;
+	Eigen::SelfAdjointEigenSolver< Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> > eigensolver(A);
+	//std::cout<<"po diagonalizacji"<<std::endl;
+	//if (eigensolver.info() != Success) abort();
+	//std::cout << "The eigenvalues of A are:\n" << eigensolver.eigenvalues() << std::endl;
+	//std::cout << "Here's a matrix whose columns are eigenvectors of A \n"
+	//<< "corresponding to these eigenvalues:\n"
+	//<< eigensolver.eigenvectors() << std::endl;
+	// calculate spectrum and write it to file
+	
+	//fs1<< eigensolver.eigenvalues() << std::endl;
 
-
-
-
+    std::cout << eigensolver.eigenvalues() <<std::endl;
+}
+// ========================================================================================
 
 
 
