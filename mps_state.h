@@ -35,6 +35,7 @@ public:
 
     void write_entanglement_spectrum( int bipart_l );
 
+    void compress( long double cutoff_singular_value );
 
     void multiply_by_double( int which_site, long double doubl );
 	void act_with_Sz( int which_site );
@@ -52,7 +53,7 @@ public:
 
 	void load_matrix( Tmps_matrix& M1);
 	void set_length( int L );
-
+    int get_length(){ return length;};
 
 
 private:

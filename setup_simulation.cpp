@@ -8,7 +8,7 @@
 #include <thread>
 #include<time.h>
 #include <math.h> 
-#include </home/jumper/Eigen324/Eigen/Dense>
+#include </home/sierant/Eigen324/Eigen/Dense>
 
 
 
@@ -18,7 +18,7 @@
 
 
 
-
+// ----------------------------------------------------------------------------------------
 setup_simulation::setup_simulation(int n_of_points, int n_of_threads, const std::vector<int> &chain_sizes,
 												 const std::vector<long double> &values_Jz,
 												 const std::vector<long double> &values_dwa,
@@ -48,9 +48,11 @@ setup_simulation::setup_simulation(int n_of_points, int n_of_threads, const std:
 	} 
 	create_in_files();
 }
+// ========================================================================================
 
 
 
+// ----------------------------------------------------------------------------------------
 void setup_simulation::create_in_files(){
 
 	for( int i = 0; i < number_of_points; ++i){
@@ -129,11 +131,11 @@ void setup_simulation::create_in_files(){
 		fs2.close();		
 	}
 }
-/*
-void setup_simulation::do_mps_optim(){
-	system("python input.py > out.txt");
-}*/
+// ========================================================================================
 
+
+
+// ----------------------------------------------------------------------------------------
 void setup_simulation::run_simulation(){
 
 	int proc = 0;
@@ -162,8 +164,11 @@ void setup_simulation::run_simulation(){
 	fs1.close();
 
 }
+// ========================================================================================
 
 
+
+// ----------------------------------------------------------------------------------------
 void setup_simulation::get_energies(){
 	
 	std::fstream fs1, fs2;
@@ -210,7 +215,11 @@ void setup_simulation::get_energies(){
 		fs1.close();
 	}
 }
+// ========================================================================================
 
+
+
+// ----------------------------------------------------------------------------------------
 void setup_simulation::get_gaps()
 {
 	for(int i1 = 0; i1<parm_T.size();++i1){
@@ -273,11 +282,60 @@ void setup_simulation::get_gaps()
 	}
 
 }
+// ========================================================================================
 
 
 
+// ----------------------------------------------------------------------------------------
+void setup_simulation::get_boundary_modes()
+{
+	for( int i =0 ; i< number_of_points; ++i )
+	{
+        Tmps_state MPS0 = this->get_MPS_from_ith_folder( i, "0");
+        Tmps_state MPS1 = this->get_MPS_from_ith_folder( i, "1");
+        Tmps_state MPS2 = MPS0;
+        
+        Tmps_state pMPSp, pMPSn;
+        
+        if( fabs(MPS0.calc_fermionic_parity( 0, MPS0.get_length() ) ) < 0.97 )
+        { // if fermionic parity is not well-defined, then project the ground state on
+          // positive and negative fermionic parity
+            MPS0.project_on_positive_fermionic_parity();
+            MPS2.project_on_negative_fermionic_parity();
+            pMPSp = MPS0; 
+            pMPSn = MPS2;
+        }
+        else
+        { // if fermionic parity is well-defined (and thus states nondegenerate), then 
+          // take the first and the second state  
+            pMPSp = MPS0; 
+            pMPSn = MPS1;
+        }
+
+        std::fstream fs1;
+        fs1.open("boundary_mode_"+this->loop_return_string(i) +".dat", std::fstream::out);	
+        for(int site = 0; site < MPS0.get_length(); ++site)
+        {
+            Tmps_state MPSp = pMPSp;
+            Tmps_state MPSn = pMPSn;
+            MPSp.act_with_fermionic_cd( site );
+            long double phi1 = MPSp.overlap_with( MPSn );
+            
+            Tmps_state MPSp1 = pMPSp;
+            Tmps_state MPSn1 = pMPSn;
+            MPSn1.act_with_fermionic_cd( site );
+            long double phi2 = MPSn1.overlap_with( MPSp1 );        
+     
+            fs1<<site<<" "<<phi1+phi2<<" "<<phi1-phi2<<std::endl;
+        }
+        fs1.close();
+    }
+}
+// ========================================================================================
 
 
+
+// ----------------------------------------------------------------------------------------
 void setup_simulation::get_structure_factors()
 {
 	for( int i =0 ; i< number_of_points; ++i ){
@@ -315,6 +373,10 @@ void setup_simulation::get_structure_factors()
 
 
 }
+// ========================================================================================
+
+
+
 
 // ----------------------------------------------------------------------------------------
 Tmps_state setup_simulation::get_MPS_from_ith_folder( int i, const char* which_state)
@@ -376,6 +438,7 @@ Tmps_state setup_simulation::get_MPS_from_ith_folder( int i, const char* which_s
     return MPS1;
 }
 // ========================================================================================
+
 
 
 // ----------------------------------------------------------------------------------------
@@ -464,11 +527,12 @@ void setup_simulation::get_entanglement_spectra( const char* which_state )
 
 	}
 }
+// ========================================================================================
 
 
 
 
-
+// ----------------------------------------------------------------------------------------
 std::string setup_simulation::loop_return_TVstr( int i0 )
 {
 
@@ -495,22 +559,17 @@ std::string setup_simulation::loop_return_TVstr( int i0 )
 
 			return s1;
 		}
-
-
 	}
 	}
 	}
 	}
 	}
-
-
-
-
 }
+// ========================================================================================
 
 
 
-
+// ----------------------------------------------------------------------------------------
 int setup_simulation::loop_return_L( int i0 ){
 
 	int tmp = 0;
@@ -534,7 +593,11 @@ int setup_simulation::loop_return_L( int i0 ){
 
 
 }
+// ========================================================================================
 
+
+
+// ----------------------------------------------------------------------------------------
 long double setup_simulation::loop_return_Jz( int i0 ){
 
 	int tmp = 0;
@@ -558,7 +621,11 @@ long double setup_simulation::loop_return_Jz( int i0 ){
 
 
 }
+// ========================================================================================
 
+
+
+// ----------------------------------------------------------------------------------------
 long double setup_simulation::loop_return_dwa( int i0 ){
 
 	int tmp = 0;
@@ -582,7 +649,12 @@ long double setup_simulation::loop_return_dwa( int i0 ){
 
 
 }
+// ========================================================================================
 
+
+
+
+// ----------------------------------------------------------------------------------------
 long double setup_simulation::loop_return_T( int i0 ){
 
 	int tmp = 0;
@@ -606,7 +678,11 @@ long double setup_simulation::loop_return_T( int i0 ){
 
 
 }
+// ========================================================================================
 
+
+
+// ----------------------------------------------------------------------------------------
 long double setup_simulation::loop_return_V( int i0 ){
 
 	int tmp = 0;
@@ -630,7 +706,12 @@ long double setup_simulation::loop_return_V( int i0 ){
 
 
 }
+// ========================================================================================
 
+
+
+
+// ----------------------------------------------------------------------------------------
 std::string setup_simulation::loop_return_string( int i0 ){
 
 	int tmp = 0;
@@ -665,6 +746,7 @@ std::string setup_simulation::loop_return_string( int i0 ){
 
 
 }
+// ========================================================================================
 
 
 

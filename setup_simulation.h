@@ -25,7 +25,7 @@ public:
     void get_gaps();
 	void get_entanglement_spectra( const char* which_state );
 	void get_structure_factors();
-
+    void get_boundary_modes();
 
 	Tmps_state get_MPS_from_ith_folder( int i, const char* which_state);
 
