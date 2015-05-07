@@ -9,3 +9,5 @@ TODO: implement SVD compression of MPS state
 TODO: introduce states in Vidal notation - Tmps_state_vidal
 
 TODO: split setup_simulation into setup_simulation and get_measurements
+
+TODO: rewrite mps_state and mps_matrix classes so that funcions return new objects rather than editing existing ones
