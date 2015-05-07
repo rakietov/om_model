@@ -92,6 +92,7 @@ Tmps_matrix Tmps_state::calc_reduced_density_matrix( int bipart_l )
 	if(this->length < bipart_l)
 	{
 		std::cout<<"ERROR: Impossible bipartition"<<std::endl;
+		std::cout<<this->length<<" "<<bipart_l<<std::endl;
 	}
 
 	Tmps_matrix Res;

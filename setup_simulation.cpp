@@ -145,9 +145,9 @@ void setup_simulation::run_simulation(){
 
 	while( proc < number_of_points ){
 		std::vector<std::thread> threads;
-		for(int i =0 ; i < number_of_threads && i < number_of_points; ++i){
+		for(int i = 0 ; i < number_of_threads && proc < number_of_points; ++i){
 			fs1 << "Starting: "<<loop_return_string( proc )<<std::endl;
-			std::string curr_dir =  "./"+loop_return_string( proc)+"/";
+			std::string curr_dir =  "./"+loop_return_string( proc )+"/";
 			proc ++;
 			chdir( curr_dir.c_str() );
 			system("pwd");
@@ -393,7 +393,7 @@ Tmps_state setup_simulation::get_MPS_from_ith_folder( int i, const char* which_s
     
 	for(int i0 = 0; i0 < loop_return_L( i ); ++i0)
 	{
-		std::string s1("~/h5dump mps");
+		std::string s1("h5dump mps");
 		std::stringstream ss1;
 		ss1 << i0;
 		s1.append(ss1.str());
@@ -469,9 +469,16 @@ void setup_simulation::get_entanglement_spectra( const char* which_state )
 		//decode .h5 files
         
         Tmps_state MPS1;
-        MPS1 = get_MPS_from_ith_folder( i, which_state);
+        MPS1 = this->get_MPS_from_ith_folder( i, which_state);
+        
+        //if fermionic parity of MPS1 is well defined proceed, else project in on positive fermionic parity:
+        if( fabs( MPS1.calc_fermionic_parity( 0, MPS1.get_length() ) ) < 0.97)
+        {
+            MPS1.project_on_positive_fermionic_parity();
+        } 
+        
 		Tmps_matrix reduced_dm;
-		reduced_dm = MPS1.calc_reduced_density_matrix( loop_return_L( i )/2 );
+		reduced_dm = MPS1.calc_reduced_density_matrix( MPS1.get_length()/2 );
 	
 		//reduced_dm.write_indices();
 		//reduced_dm.write_ith_m_data(0);

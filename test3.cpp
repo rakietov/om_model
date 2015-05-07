@@ -13,18 +13,17 @@
 
 int main(){
 
-	int n_of_threads = 1;
+	int n_of_threads = 4;
 	std::vector<int> chainsizes;
-//	for(int i = 0; i < 34; ++i){
-//		chainsizes.push_back( 3*i + 15);
-//	}
-//	chainsizes.push_back(120);
-//	chainsizes.push_back(121);
-//	chainsizes.push_back(122);
-//	chainsizes.push_back(123);
-//	chainsizes.push_back(200);
+	for(int i = 0; i < 12; ++i){
+		chainsizes.push_back( 8*i + 19);
+	}
 	chainsizes.push_back(120);
-
+	chainsizes.push_back(121);
+	chainsizes.push_back(122);
+	chainsizes.push_back(123);
+    chainsizes.push_back(200);
+    chainsizes.push_back(240);
 
 	std::vector<long double> values_Jz = {0.15};
 
@@ -34,12 +33,13 @@ int main(){
 
 	setup_simulation sim1(  chainsizes.size()*values_Jz.size()*values_dwa.size()*values_T.size()*values_V.size(), 
 									n_of_threads, chainsizes, values_Jz, values_dwa, values_T, values_V ) ;
-//	sim1.run_simulation();std::cout<<"simulation done"<<std::endl;
-//	sim1.get_energies();std::cout<<"get_energies"<<std::endl;
-//	sim1.get_gaps();std::cout<<"get_gaps"<<std::endl;
-//	sim1.get_structure_factors(); std::cout<<"get_structure_factors"<<std::endl;
-//	sim1.get_entanglement_spectra( "0" );
-//	sim1.get_entanglement_spectra( "1" );
+	sim1.run_simulation();std::cout<<"Simulation done"<<std::endl;
+	sim1.get_energies();std::cout<<"Got energies"<<std::endl;
+	sim1.get_gaps();std::cout<<"Got gaps"<<std::endl;
+	sim1.get_structure_factors(); std::cout<<"Got structure factors"<<std::endl;
+	sim1.get_entanglement_spectra( "0" );std::cout<<"Got entanglement spectra 0"<<std::endl;
+	sim1.get_entanglement_spectra( "1" );std::cout<<"Got entanglement spectra 1"<<std::endl;
+    sim1.get_boundary_modes();std::cout<<"Got boundary modes"<<std::endl;
  /*
     Tmps_state MPS0 = sim1.get_MPS_from_ith_folder( 0, "0");
     MPS0.project_on_positive_fermionic_parity();
@@ -71,6 +71,7 @@ int main(){
 
     //MPS1.add_mps_state( MPS0 );
     //std::cout<< MPS1.overlap_with( MPS1 )<<std::endl;
+/* 
     Tmps_state MPS0 = sim1.get_MPS_from_ith_folder( 0, "0"); 
     std::cout<<"Reduced density matrix spectrum: "<<std::endl;
     MPS0.write_entanglement_spectrum( 60 );
@@ -87,7 +88,7 @@ int main(){
     std::cout<< MPS1.calc_fermionic_parity( 0, 120)<<std::endl;
     std::cout<<"Reduced density matrix spectrum: "<<std::endl;   
     MPS1.write_entanglement_spectrum( 60 );
-    
+*/    
     
 //    Tmps_state MPS1 = sim1.get_MPS_from_ith_folder( 0, "1");
 //    Tmps_state MPS2 = sim1.get_MPS_from_ith_folder( 0, "2");
