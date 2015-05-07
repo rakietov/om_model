@@ -145,7 +145,7 @@ void setup_simulation::run_simulation(){
 
 	while( proc < number_of_points ){
 		std::vector<std::thread> threads;
-		for(int i =0 ; i<number_of_threads; ++i){
+		for(int i =0 ; i < number_of_threads && i < number_of_points; ++i){
 			fs1 << "Starting: "<<loop_return_string( proc )<<std::endl;
 			std::string curr_dir =  "./"+loop_return_string( proc)+"/";
 			proc ++;
@@ -287,7 +287,7 @@ void setup_simulation::get_gaps()
 
 
 // ----------------------------------------------------------------------------------------
-void setup_simulation::get_boundary_modes()
+void setup_simulation::get_boundary_modes() //needs to be parallelized
 {
 	for( int i =0 ; i< number_of_points; ++i )
 	{
