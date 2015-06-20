@@ -33,6 +33,49 @@ void Tmps_state::set_length( int L)
 }
 // ========================================================================================
 
+
+// ----------------------------------------------------------------------------------------
+bool Tmps_state::is_right_normalized()
+{
+    bool is_right = true;
+    for(int i=0;i<3;++i)
+    {
+	    Tmps_matrix A( this->_data_[i] );
+	    Tmps_matrix A_dag( this->_data_[i] );
+	    A_dag.conjugate();	
+	
+    /*	std::cout<<"Printing A"<<std::endl;
+	    A.write_indices();
+	    A.write_ith_m_data(0);
+	    std::cout<<std::endl;
+	    A.write_ith_m_data(1);	
+	    std::cout<<std::endl;	
+
+	    std::cout<<"Printing Adag"<<std::endl;
+	    A_dag.write_indices();
+	    A_dag.write_ith_m_data(0);
+	    std::cout<<std::endl;
+	    A_dag.write_ith_m_data(1);	
+	    std::cout<<std::endl;
+    */
+        Tmps_matrix res(A*A_dag);
+        res.sum_phys_i();
+        
+    /* 	std::cout<<"Printing res"<<std::endl;
+	    res.write_indices();
+	    res.write_ith_m_data(0);
+	    std::cout<<std::endl; 
+    */
+        if( !res.is_numerical_Id())
+        {
+	        return false;
+	    }
+	}
+	return true;
+}
+// ========================================================================================
+
+
 // ----------------------------------------------------------------------------------------
 long double Tmps_state::overlap_with( const Tmps_state& s1 )
 {

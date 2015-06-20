@@ -50,6 +50,8 @@ public:
 	void set_1matrix( int p, int l, int r );
 	//long double mps_overlap( const Tmps_matrix& M1, const Tmps_matrix& M2 );	
 
+	bool is_numerical_Id();
+
 private:
 
 	int phys_i, left_i, right_i;

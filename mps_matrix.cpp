@@ -94,6 +94,45 @@ void Tmps_matrix::set_size(int p, int l, int r){
 	//std::cout<<"size set"<<std::endl;
 }
 
+bool Tmps_matrix::is_numerical_Id()
+{
+    Tmps_matrix M = *this;
+	if( M.phys_i != 1 )
+	{
+		std::cout<<"ERROR: physical index != 1"<<std::endl;
+	}
+	
+	if( M.left_i != M.right_i )
+	{
+		std::cout<<"ERROR: left_i != right_i"<<std::endl;
+	}	
+	
+
+    long double sum_off_diag = 0.;
+    long double sum_on_diag  = 0.;
+    
+    for(int a1 = 0; a1 < M.left_i; ++a1)
+    {
+        for(int a2 = 0; a2 < M.right_i; ++a2)
+        {
+            if(a1 != a2)
+            {
+                sum_off_diag += (*M.m_data )[a1][a2] * (*M.m_data )[a1][a2];
+            }
+            if(a1 == a2)
+            {
+                sum_on_diag += (*M.m_data )[a1][a2] * (*M.m_data )[a1][a2];
+            }           
+        }
+    }
+    bool is_Id = true;
+    if(sum_on_diag < 0.9 * M.left_i)is_Id = false; 
+    if(sum_off_diag > 0.00001)is_Id = false;  
+
+    return is_Id;
+}
+
+
 void Tmps_matrix::set_ith_m_data( int ph,  std::vector < std::vector<long double> > mat)
 {
     if( ph < 0 || ph > phys_i)

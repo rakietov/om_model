@@ -55,6 +55,7 @@ public:
 	void set_length( int L );
     int get_length(){ return length;};
 
+    bool is_right_normalized();
 
 private:
 	std::size_t length;
